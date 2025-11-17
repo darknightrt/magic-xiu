@@ -17,12 +17,18 @@ import classic from "@/assets/images/template-cover/classic.png";
 import modern from "@/assets/images/template-cover/modern.png";
 import leftRight from "@/assets/images/template-cover/left-right.png";
 import timeline from "@/assets/images/template-cover/timeline.png";
+import classicVertical from "@/assets/images/template-cover/classsic-vertical.png";
+import graySplit from "@/assets/images/template-cover/gray-split.png";
+import popularColumns from "@/assets/images/template-cover/popular-columns.png";
 
 const templateImages: { [key: string]: any } = {
   classic,
   modern,
   "left-right": leftRight,
-  timeline
+  timeline,
+  "classic-vertical": classicVertical,
+  "gray-split": graySplit,
+  "popular-columns": popularColumns
 };
 
 const TemplateSheet = () => {
