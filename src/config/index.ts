@@ -167,7 +167,7 @@ export const DEFAULT_TEMPLATES: ResumeTemplate[] = [
   },
   {
     id: "demo-three",
-    name: "经典个人模版",
+    name: "热门个人模版",
     description: "现代简约风格，顶部金色装饰条，左侧导航栏，右侧内容区，蓝白灰配色",
     thumbnail: "demoThree",
     layout: "demo-three",
