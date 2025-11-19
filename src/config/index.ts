@@ -168,14 +168,14 @@ export const DEFAULT_TEMPLATES: ResumeTemplate[] = [
   {
     id: "demo-three",
     name: "经典个人模版",
-    description: "顶部渐变色横条 + 双列内容，突出主题色和自定义差异",
+    description: "现代简约风格，顶部金色装饰条，左侧导航栏，右侧内容区，蓝白灰配色",
     thumbnail: "demoThree",
     layout: "demo-three",
     colorScheme: {
-      primary: "#2563eb",
-      secondary: "#0ea5e9",
+      primary: "#1e3a8a",
+      secondary: "#d4af37",
       background: "#f5f6fb",
-      text: "#0f172a"
+      text: "#111827"
     },
     spacing: {
       sectionGap: 28,
