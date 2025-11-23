@@ -4,7 +4,6 @@ import ModernTemplate from "./ModernTemplate";
 import LeftRightTemplate from "./LeftRightTemplate";
 import TimelineTemplate from "./TimelineTemplate";
 import ClassicVerticalTemplate from "./ClassicVerticalTemplate";
-import GraySplitTemplate from "./GraySplitTemplate";
 import PopularColumnsTemplate from "./PopularColumnsTemplate";
 import DemoThreeTemplate from "./DemoThreeTemplate";
 import { ResumeData } from "@/types/resume";
@@ -29,8 +28,6 @@ const ResumeTemplateComponent: React.FC<TemplateProps> = ({
         return <TimelineTemplate data={data} template={template} />;
       case "classic-vertical":
         return <ClassicVerticalTemplate data={data} template={template} />;
-      case "gray-split":
-        return <GraySplitTemplate data={data} template={template} />;
       case "popular-columns":
         return <PopularColumnsTemplate data={data} template={template} />;
       case "demo-three":
@@ -44,3 +41,4 @@ const ResumeTemplateComponent: React.FC<TemplateProps> = ({
 };
 
 export default ResumeTemplateComponent;
+
