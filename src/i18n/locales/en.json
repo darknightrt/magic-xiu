@@ -185,10 +185,6 @@
         "name": "Classic Vertical",
         "description": "Full-width accent header with stacked sections"
       },
-      "graySplit": {
-        "name": "Gray Split Columns",
-        "description": "Left gray info column with bright right content area"
-      },
       "popularColumns": {
         "name": "Popular Columns",
         "description": "Color strap header with light two-column content"
@@ -656,3 +652,4 @@
     }
   }
 }
+
