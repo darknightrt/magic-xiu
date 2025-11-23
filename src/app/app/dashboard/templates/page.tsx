@@ -15,7 +15,6 @@ import modern from "@/assets/images/template-cover/modern.png";
 import leftRight from "@/assets/images/template-cover/left-right.png";
 import timeline from "@/assets/images/template-cover/timeline.png";
 import classicVertical from "@/assets/images/template-cover/classsic-vertical.png";
-import graySplit from "@/assets/images/template-cover/gray-split.png";
 import popularColumns from "@/assets/images/template-cover/popular-columns.png";
 import demoThree from "@/assets/images/template-cover/demo-three.png";
 
@@ -28,7 +27,6 @@ const templateImages: Record<string, StaticImageData> = {
   "left-right": leftRight,
   timeline,
   "classic-vertical": classicVertical,
-  "gray-split": graySplit,
   "popular-columns": popularColumns,
   "demo-three": demoThree,
 };
@@ -36,7 +34,6 @@ const templateImages: Record<string, StaticImageData> = {
 const translationKeyMap: Record<string, string> = {
   "left-right": "leftRight",
   "classic-vertical": "classicVertical",
-  "gray-split": "graySplit",
   "popular-columns": "popularColumns",
   "demo-three": "demoThree",
 };
