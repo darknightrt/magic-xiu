@@ -22,7 +22,7 @@ import {
 } from "@/components/ui/tooltip";
 
 const LAYOUT_CONFIG = {
-  DEFAULT: [20, 25, 55],
+  DEFAULT: [20, 25, 50],
   SIDE_COLLAPSED: [50, 50],
   EDIT_FOCUSED: [20, 80],
   PREVIEW_FOCUSED: [20, 80],
@@ -206,7 +206,7 @@ export default function Home() {
           if (editPanelCollapsed) {
             newSizes.push(80);
           } else {
-            newSizes.push(55);
+            newSizes.push(50);
           }
         }
     }
