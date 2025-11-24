@@ -293,7 +293,7 @@ const AutoOptimizeButton: React.FC<AutoOptimizeButtonProps> = ({ className }) =>
         onClick={handleOptimize}
         disabled={isOptimizing}
         className={cn(
-          "bg-blue-700 hover:bg-blue-800 text-white rounded-lg",
+          "bg-blue-600 hover:bg-blue-700 text-white rounded-lg",
           "px-6 py-3 h-auto w-full",
           "font-medium text-base",
           "transition-all duration-200",
@@ -304,17 +304,17 @@ const AutoOptimizeButton: React.FC<AutoOptimizeButtonProps> = ({ className }) =>
       >
         {isOptimizing ? (
           <>
-            <Loader2 className="h-7 w-7 mr-3 animate-spin" />
+            <Loader2 className="h-5 w-5 mr-2 animate-spin" />
             <span>优化中...</span>
           </>
         ) : (
           <>
-            <Sparkles className="h-7 w-7 mr-3" />
+            <Sparkles className="h-5 w-5 mr-2" />
             <span>一键优化</span>
           </>
         )}
       </Button>
-      <p className="text-xs text-gray-600 dark:text-gray-500 text-center leading-relaxed px-2">
+      <p className="text-xs text-gray-500 dark:text-gray-400 text-center leading-relaxed px-2">
         (标点符号、经历排序、专业词语一键优化，快人一步)
       </p>
     </div>
@@ -322,5 +322,4 @@ const AutoOptimizeButton: React.FC<AutoOptimizeButtonProps> = ({ className }) =>
 };
 
 export default AutoOptimizeButton;
-
 
