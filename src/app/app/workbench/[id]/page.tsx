@@ -22,7 +22,7 @@ import {
 } from "@/components/ui/tooltip";
 
 const LAYOUT_CONFIG = {
-  DEFAULT: [25, 35, 55],
+  DEFAULT: [20, 30, 55],
   SIDE_COLLAPSED: [50, 50],
   EDIT_FOCUSED: [20, 80],
   PREVIEW_FOCUSED: [20, 80],
@@ -179,7 +179,7 @@ export default function Home() {
     let newSizes = [];
 
     // 侧边栏尺寸
-    newSizes.push(sidePanelCollapsed ? 0 : 25);
+    newSizes.push(sidePanelCollapsed ? 0 : 20);
 
     // 编辑区尺寸
     if (editPanelCollapsed) {
@@ -191,7 +191,7 @@ export default function Home() {
           if (previewPanelCollapsed) {
             newSizes.push(80);
           } else {
-            newSizes.push(35);
+            newSizes.push(30);
           }
         }
     }
