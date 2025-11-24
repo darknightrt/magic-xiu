@@ -22,7 +22,7 @@ import {
 } from "@/components/ui/tooltip";
 
 const LAYOUT_CONFIG = {
-  DEFAULT: [20, 30, 55],
+  DEFAULT: [20, 25, 55],
   SIDE_COLLAPSED: [50, 50],
   EDIT_FOCUSED: [20, 80],
   PREVIEW_FOCUSED: [20, 80],
@@ -191,7 +191,7 @@ export default function Home() {
           if (previewPanelCollapsed) {
             newSizes.push(80);
           } else {
-            newSizes.push(30);
+            newSizes.push(25);
           }
         }
     }
@@ -253,7 +253,7 @@ export default function Home() {
                 id="side-panel"
                 order={1}
                 defaultSize={panelSizes?.[0]}
-                minSize={25}
+                minSize={20}
                 className={cn(
                   "dark:bg-neutral-900 dark:border-r dark:border-neutral-800"
                 )}
@@ -272,7 +272,7 @@ export default function Home() {
               <ResizablePanel
                 id="edit-panel"
                 order={2}
-                minSize={35}
+                minSize={25}
                 defaultSize={panelSizes?.[1]}
                 className={cn(
                   "dark:bg-neutral-900 dark:border-r dark:border-neutral-800"
