@@ -118,7 +118,7 @@ const LayoutControls = memo(
           </TooltipTrigger>
           <TooltipContent>
             <p className="text-xs">
-              {editPanelCollapsed ? "展开编辑面板" : "收起编辑面板"}
+              {editPanelCollapsed ? "收起编辑面板" : "展开编辑面板"}
             </p>
           </TooltipContent>
         </Tooltip>
