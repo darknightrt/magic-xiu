@@ -211,7 +211,7 @@ export default function Home() {
       } else if (editPanelCollapsed) {
         newSizes.push(80);
       } else if (sidePanelCollapsed) {
-        newSizes.push(50); // 当侧边栏收起且编辑面板打开时，预览占60%
+        newSizes.push(55); // 当侧边栏收起且编辑面板打开时，预览占60%
       } else {
         newSizes.push(55);
       }
