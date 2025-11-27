@@ -409,8 +409,17 @@ const ResumeDiagnosisPanel: React.FC = () => {
 
   const diagnosis = useMemo(() => {
     if (!activeResume) return null;
-    return analyzeResume(activeResume);
-  }, [activeResume]);
+    const result = analyzeResume(activeResume);
+    console.log('简历诊断分数:', result.score, '问题数:', result.totalIssues);
+    return result;
+  }, [
+    activeResume?.basic,
+    activeResume?.experience,
+    activeResume?.education,
+    activeResume?.projects,
+    activeResume?.skillContent,
+    activeResume?.customData,
+  ]);
 
   if (!activeResume || !diagnosis) return null;
 
@@ -486,5 +495,6 @@ const ResumeDiagnosisPanel: React.FC = () => {
 };
 
 export default ResumeDiagnosisPanel;
+
 
 
