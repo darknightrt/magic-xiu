@@ -158,7 +158,6 @@ export default function Home() {
   const [editPanelCollapsed, setEditPanelCollapsed] = useState(false);
   const [previewPanelCollapsed, setPreviewPanelCollapsed] = useState(false);
   const [panelSizes, setPanelSizes] = useState<number[]>(LAYOUT_CONFIG.DEFAULT);
-  const [dragMode, setDragMode] = useState(false);
 
   const toggleSidePanel = () => {
     setSidePanelCollapsed(!sidePanelCollapsed);
@@ -170,10 +169,6 @@ export default function Home() {
 
   const togglePreviewPanel = () => {
     setPreviewPanelCollapsed(!previewPanelCollapsed);
-  };
-
-  const toggleDragMode = () => {
-    setDragMode(!dragMode);
   };
 
   const updateLayout = (sizes: number[]) => {
@@ -239,7 +234,7 @@ export default function Home() {
         "dark:bg-neutral-900 dark:text-neutral-200"
       )}
     >
-      <EditorHeader dragMode={dragMode} onToggleDragMode={toggleDragMode} />
+      <EditorHeader />
       {/* 桌面端布局 */}
       <div className="hidden md:block h-[calc(100vh-64px)]">
         <ResizablePanelGroup
@@ -307,7 +302,6 @@ export default function Home() {
                   previewPanelCollapsed={previewPanelCollapsed}
                   toggleSidePanel={toggleSidePanel}
                   toggleEditPanel={toggleEditPanel}
-                  dragMode={dragMode}
                 />
               </div>
             </ResizablePanel>
@@ -324,7 +318,6 @@ export default function Home() {
             previewPanelCollapsed={false}
             toggleSidePanel={toggleSidePanel}
             toggleEditPanel={toggleEditPanel}
-            dragMode={dragMode}
           />
         </div>
       </div>
