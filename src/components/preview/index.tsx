@@ -15,6 +15,7 @@ interface PreviewPanelProps {
   previewPanelCollapsed: boolean;
   toggleSidePanel: () => void;
   toggleEditPanel: () => void;
+  dragMode?: boolean;
 }
 
 const PageBreakLine = React.memo(({ pageNumber }: { pageNumber: number }) => {
@@ -56,6 +57,7 @@ const PreviewPanel = ({
   editPanelCollapsed,
   toggleSidePanel,
   toggleEditPanel,
+  dragMode = false,
 }: PreviewPanelProps) => {
   const { activeResume } = useResumeStore();
   const template = useMemo(() => {
@@ -69,6 +71,9 @@ const PreviewPanel = ({
   const previewRef = useRef<HTMLDivElement>(null);
   const resumeContentRef = useRef<HTMLDivElement>(null);
   const [contentHeight, setContentHeight] = useState(0);
+  const [dragPosition, setDragPosition] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
 
   const updateContentHeight = () => {
     if (resumeContentRef.current) {
@@ -142,6 +147,34 @@ const PreviewPanel = ({
     return { pageHeightPx, pageBreakCount };
   }, [contentHeight, activeResume?.globalSettings?.pagePadding]);
 
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (!dragMode) return;
+    setIsDragging(true);
+    setDragStart({
+      x: e.clientX - dragPosition.x,
+      y: e.clientY - dragPosition.y,
+    });
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging || !dragMode) return;
+    setDragPosition({
+      x: e.clientX - dragStart.x,
+      y: e.clientY - dragStart.y,
+    });
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
+  useEffect(() => {
+    if (!dragMode) {
+      setDragPosition({ x: 0, y: 0 });
+      setIsDragging(false);
+    }
+  }, [dragMode]);
+
   if (!activeResume) return null;
 
   return (
@@ -150,9 +183,19 @@ const PreviewPanel = ({
       className="relative w-full h-full  bg-gray-100"
       style={{
         fontFamily: "MiSans VF, sans-serif",
+        cursor: dragMode ? (isDragging ? 'grabbing' : 'grab') : 'default',
       }}
+      onMouseDown={handleMouseDown}
+      onMouseMove={handleMouseMove}
+      onMouseUp={handleMouseUp}
+      onMouseLeave={handleMouseUp}
     >
-      <div className="py-4 ml-4 px-4 min-h-screen flex justify-center scale-[58%] origin-top md:scale-90 md:origin-top-left">
+      <div 
+        className="py-4 ml-4 px-4 min-h-screen flex justify-center scale-[58%] origin-top md:scale-90 md:origin-top-left transition-transform"
+        style={{
+          transform: dragMode ? `translate(${dragPosition.x}px, ${dragPosition.y}px)` : undefined,
+        }}
+      >
         <div className="relative flex items-start gap-4 md:gap-6">
           <div
             ref={startRef}
@@ -238,7 +281,7 @@ const PreviewPanel = ({
           </div>
           </div>
           {/* AI诊断面板 - 放在简历模板右边 */}
-          <div className="hidden md:block sticky top-5 mt-5 z-10">
+          <div className="hidden md:block sticky top-4 mt-4 z-10">
             <ResumeDiagnosisPanel />
           </div>
         </div>
@@ -255,8 +298,3 @@ const PreviewPanel = ({
 };
 
 export default PreviewPanel;
-
-
-
-
-
