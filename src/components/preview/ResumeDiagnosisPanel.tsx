@@ -19,7 +19,7 @@ interface DiagnosisResult {
   issues: DiagnosisIssue[];
 }
 
-// 评分规则配置
+// 评分规则配置（总分100分）
 const SCORING_RULES = {
   // 基本信息（总分20分）
   BASIC_INFO: {
@@ -31,27 +31,26 @@ const SCORING_RULES = {
   // 工作经历（总分30分）
   EXPERIENCE: {
     hasExperience: 10,           // 有至少1条工作经历：10分
-    perCompleteExp: 10,          // 每条完整经历：10分（公司+职位+描述）
-    qualityBonus: 5,             // 描述质量加分（超过20字）：5分
-    maxExperiences: 3,           // 最多计算3条经历
+    perCompleteExp: 5,           // 每条完整经历：5分（公司+职位+描述）
+    qualityBonus: 2,             // 描述质量加分（超过20字）：2分/条
+    maxExperiences: 3,           // 最多计算3条经历（最多21分：10+3*5+3*2）
   },
   // 教育经历（总分15分）
   EDUCATION: {
     hasEducation: 5,             // 有至少1条教育经历：5分
-    perCompleteEdu: 5,          // 每条完整教育经历：5分（学校+专业）
-    maxEducations: 2,            // 最多计算2条教育经历
+    perCompleteEdu: 5,           // 每条完整教育经历：5分（学校+专业）
+    maxEducations: 2,            // 最多计算2条教育经历（最多15分：5+2*5）
   },
   // 项目经验（总分20分）
   PROJECTS: {
-    hasProject: 10,              // 有至少1个项目：10分
-    perCompleteProject: 10,      // 每个完整项目：10分（名称+描述）
-    qualityBonus: 5,             // 描述质量加分（超过20字）：5分
-    maxProjects: 2,              // 最多计算2个项目
+    hasProject: 5,               // 有至少1个项目：5分
+    perCompleteProject: 5,       // 每个完整项目：5分（名称+描述）
+    qualityBonus: 2,             // 描述质量加分（超过20字）：2分/个
+    maxProjects: 2,              // 最多计算2个项目（最多19分：5+2*5+2*2）
   },
   // 专业技能（总分10分）
   SKILLS: {
     hasSkills: 10,               // 有技能内容：10分
-    qualityBonus: 0,             // 技能内容质量（超过10字）：已包含在基础分中
   },
   // 其他加分项（总分5分）
   BONUS: {
