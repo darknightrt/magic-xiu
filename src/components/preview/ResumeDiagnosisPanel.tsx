@@ -67,25 +67,25 @@ const analyzeResume = (resume: ResumeData): DiagnosisResult => {
 
   // 1. 基本信息评分和检查
   const basicIssues: string[] = [];
-  if (resume.basic && resume.basic.name && resume.basic.name.trim() !== "") {
+  if (resume.basic.name && resume.basic.name.trim() !== "") {
     score += SCORING_RULES.BASIC_INFO.name;
   } else {
     basicIssues.push("缺少姓名");
   }
   
-  if (resume.basic && resume.basic.email && resume.basic.email.trim() !== "") {
+  if (resume.basic.email && resume.basic.email.trim() !== "") {
     score += SCORING_RULES.BASIC_INFO.email;
   } else {
     basicIssues.push("缺少邮箱");
   }
   
-  if (resume.basic && resume.basic.phone && resume.basic.phone.trim() !== "") {
+  if (resume.basic.phone && resume.basic.phone.trim() !== "") {
     score += SCORING_RULES.BASIC_INFO.phone;
   } else {
     basicIssues.push("缺少电话");
   }
   
-  if (resume.basic && resume.basic.title && resume.basic.title.trim() !== "") {
+  if (resume.basic.title && resume.basic.title.trim() !== "") {
     score += SCORING_RULES.BASIC_INFO.title;
   } else {
     basicIssues.push("缺少职位/标题");
@@ -102,7 +102,7 @@ const analyzeResume = (resume: ResumeData): DiagnosisResult => {
 
   // 2. 工作/实习经历评分和检查
   const experienceIssues: string[] = [];
-  if (resume.experience && resume.experience.length > 0) {
+  if (resume.experience.length > 0) {
     score += SCORING_RULES.EXPERIENCE.hasExperience;
     
     // 计算完整经历的数量（最多3条）
@@ -151,7 +151,7 @@ const analyzeResume = (resume: ResumeData): DiagnosisResult => {
 
   // 3. 教育经历评分和检查
   const educationIssues: string[] = [];
-  if (resume.education && resume.education.length > 0) {
+  if (resume.education.length > 0) {
     score += SCORING_RULES.EDUCATION.hasEducation;
     
     // 计算完整教育经历的数量（最多2条）
@@ -192,7 +192,7 @@ const analyzeResume = (resume: ResumeData): DiagnosisResult => {
 
   // 4. 项目经验评分和检查
   const projectIssues: string[] = [];
-  if (resume.projects && resume.projects.length > 0) {
+  if (resume.projects.length > 0) {
     score += SCORING_RULES.PROJECTS.hasProject;
     
     // 计算完整项目的数量（最多2个）
@@ -254,12 +254,12 @@ const analyzeResume = (resume: ResumeData): DiagnosisResult => {
 
   // 6. 其他加分项
   // 照片加分
-  if (resume.basic && resume.basic.photo && resume.basic.photo.trim() !== "") {
+  if (resume.basic.photo && resume.basic.photo.trim() !== "") {
     score += SCORING_RULES.BONUS.photo;
   }
   
   // 自定义字段加分
-  const customFieldsCount = resume.basic ? Object.keys(resume.basic.customFields || {}).length : 0;
+  const customFieldsCount = Object.keys(resume.basic.customFields || {}).length;
   if (customFieldsCount > 0) {
     score += SCORING_RULES.BONUS.customFields;
   }
