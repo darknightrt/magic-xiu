@@ -158,6 +158,7 @@ export default function Home() {
   const [editPanelCollapsed, setEditPanelCollapsed] = useState(false);
   const [previewPanelCollapsed, setPreviewPanelCollapsed] = useState(false);
   const [panelSizes, setPanelSizes] = useState<number[]>(LAYOUT_CONFIG.DEFAULT);
+  const [dragMode, setDragMode] = useState(false);
 
   const toggleSidePanel = () => {
     setSidePanelCollapsed(!sidePanelCollapsed);
@@ -169,6 +170,10 @@ export default function Home() {
 
   const togglePreviewPanel = () => {
     setPreviewPanelCollapsed(!previewPanelCollapsed);
+  };
+
+  const toggleDragMode = () => {
+    setDragMode(!dragMode);
   };
 
   const updateLayout = (sizes: number[]) => {
@@ -186,21 +191,15 @@ export default function Home() {
       newSizes.push(0);
     } else {
       if (sidePanelCollapsed) {
-   // 侧边栏收起时
-   if (previewPanelCollapsed) {
-    newSizes.push(100); // 编辑面板占满
-  } else {
-    newSizes.push(35); // 编辑面板40%，预览60%
-  }
-} else {
-  // 侧边栏展开时
-  if (previewPanelCollapsed) {
-    newSizes.push(80);
-  } else {
-    newSizes.push(25);
-  }
-}
-}
+        newSizes.push(50);
+        } else {
+          if (previewPanelCollapsed) {
+            newSizes.push(80);
+          } else {
+            newSizes.push(25);
+          }
+        }
+    }
 
     // 预览区尺寸
     if (previewPanelCollapsed) {
@@ -208,13 +207,13 @@ export default function Home() {
     } else {
       if (editPanelCollapsed && sidePanelCollapsed) {
         newSizes.push(100);
-      } else if (editPanelCollapsed) {
-        newSizes.push(80);
-      } else if (sidePanelCollapsed) {
-        newSizes.push(42); // 当侧边栏收起且编辑面板打开时，预览占60%
-      } else {
-        newSizes.push(55);
-      }
+        } else {
+          if (editPanelCollapsed) {
+            newSizes.push(80);
+          } else {
+            newSizes.push(55);
+          }
+        }
     }
 
     // 确保总和为 100
@@ -240,7 +239,7 @@ export default function Home() {
         "dark:bg-neutral-900 dark:text-neutral-200"
       )}
     >
-      <EditorHeader />
+      <EditorHeader dragMode={dragMode} onToggleDragMode={toggleDragMode} />
       {/* 桌面端布局 */}
       <div className="hidden md:block h-[calc(100vh-64px)]">
         <ResizablePanelGroup
@@ -308,6 +307,7 @@ export default function Home() {
                   previewPanelCollapsed={previewPanelCollapsed}
                   toggleSidePanel={toggleSidePanel}
                   toggleEditPanel={toggleEditPanel}
+                  dragMode={dragMode}
                 />
               </div>
             </ResizablePanel>
@@ -324,6 +324,7 @@ export default function Home() {
             previewPanelCollapsed={false}
             toggleSidePanel={toggleSidePanel}
             toggleEditPanel={toggleEditPanel}
+            dragMode={dragMode}
           />
         </div>
       </div>
