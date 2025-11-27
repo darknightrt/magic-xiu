@@ -80,17 +80,14 @@ export function StyleSettingsDialog({
   );
 
   return (
-    <DraggableDialog 
-      open={open} 
-      onOpenChange={onOpenChange}
-      className="max-w-2xl max-h-[80vh] overflow-y-auto"
-    >
-      <DialogHeader>
-        <DialogTitle>样式排版</DialogTitle>
-        <DialogDescription>
-          调整简历的字体、间距、颜色等样式设置
-        </DialogDescription>
-      </DialogHeader>
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>样式排版</DialogTitle>
+          <DialogDescription>
+            调整简历的字体、间距、颜色等样式设置
+          </DialogDescription>
+        </DialogHeader>
         <div className="space-y-4">
           {/* 主题色设置 */}
           <SettingCard icon={Palette} title={t("theme.title")}>
@@ -422,7 +419,8 @@ export function StyleSettingsDialog({
             </div>
           </SettingCard>
         </div>
-    </DraggableDialog>
+      </DialogContent>
+    </Dialog>
   );
 }
 
