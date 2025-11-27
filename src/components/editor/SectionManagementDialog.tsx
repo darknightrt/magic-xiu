@@ -1,12 +1,11 @@
 "use client";
 import { useTranslations } from "next-intl";
 import {
-  Dialog,
-  DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { DraggableDialog } from "@/components/ui/draggable-dialog";
 import LayoutSetting from "./layout/LayoutSetting";
 import { useResumeStore } from "@/store/useResumeStore";
 import { Button } from "@/components/ui/button";
@@ -54,35 +53,37 @@ export function SectionManagementDialog({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>模块管理</DialogTitle>
-          <DialogDescription>
-            管理简历模块的显示、排序和删除
-          </DialogDescription>
-        </DialogHeader>
-        <div className="space-y-4">
-          <LayoutSetting
-            menuSections={menuSections}
-            activeSection={activeSection}
-            setActiveSection={setActiveSection}
-            toggleSectionVisibility={toggleSectionVisibility}
-            updateMenuSections={updateMenuSections}
-            reorderSections={reorderSections}
-          />
-          <motion.button
-            whileHover={{ scale: 1.01 }}
-            whileTap={{ scale: 0.99 }}
-            onClick={handleCreateSection}
-            className="flex justify-center w-full rounded-lg items-center gap-2 py-2 px-3 text-sm font-medium text-primary bg-indigo-50 dark:bg-indigo-950 hover:bg-indigo-100 dark:hover:bg-indigo-900 transition-colors"
-          >
-            <Plus className="w-4 h-4" />
-            {t("layout.addCustomSection")}
-          </motion.button>
-        </div>
-      </DialogContent>
-    </Dialog>
+    <DraggableDialog 
+      open={open} 
+      onOpenChange={onOpenChange}
+      className="max-w-2xl max-h-[80vh] overflow-y-auto"
+    >
+      <DialogHeader>
+        <DialogTitle>模块管理</DialogTitle>
+        <DialogDescription>
+          管理简历模块的显示、排序和删除
+        </DialogDescription>
+      </DialogHeader>
+      <div className="space-y-4">
+        <LayoutSetting
+          menuSections={menuSections}
+          activeSection={activeSection}
+          setActiveSection={setActiveSection}
+          toggleSectionVisibility={toggleSectionVisibility}
+          updateMenuSections={updateMenuSections}
+          reorderSections={reorderSections}
+        />
+        <motion.button
+          whileHover={{ scale: 1.01 }}
+          whileTap={{ scale: 0.99 }}
+          onClick={handleCreateSection}
+          className="flex justify-center w-full rounded-lg items-center gap-2 py-2 px-3 text-sm font-medium text-primary bg-indigo-50 dark:bg-indigo-950 hover:bg-indigo-100 dark:hover:bg-indigo-900 transition-colors"
+        >
+          <Plus className="w-4 h-4" />
+          {t("layout.addCustomSection")}
+        </motion.button>
+      </div>
+    </DraggableDialog>
   );
 }
 
