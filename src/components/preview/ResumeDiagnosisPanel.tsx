@@ -266,15 +266,13 @@ const analyzeResume = (resume: ResumeData): DiagnosisResult => {
 
   // 7. 校内经历检查（可选，不影响分数）
   const campusIssues: string[] = [];
-  if (resume.customData) {
-    const campusData = resume.customData["campus"] || resume.customData["校内经历"];
-    if (campusData && campusData.length > 0) {
-      campusData.forEach((item, index) => {
-        if (!item.title || item.title.trim() === "") {
-          campusIssues.push(`第${index + 1}条校内经历缺少标题`);
-        }
-      });
-    }
+  const campusData = resume.customData["campus"] || resume.customData["校内经历"];
+  if (campusData && campusData.length > 0) {
+    campusData.forEach((item, index) => {
+      if (!item.title || item.title.trim() === "") {
+        campusIssues.push(`第${index + 1}条校内经历缺少标题`);
+      }
+    });
   }
   if (campusIssues.length > 0) {
     issues.push({
