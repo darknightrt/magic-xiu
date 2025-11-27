@@ -1,11 +1,12 @@
 "use client";
 import { useTranslations } from "next-intl";
 import {
+  Dialog,
+  DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { DraggableDialog } from "@/components/ui/draggable-dialog";
 import { useResumeStore } from "@/store/useResumeStore";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -423,4 +424,5 @@ export function StyleSettingsDialog({
     </Dialog>
   );
 }
+
 
