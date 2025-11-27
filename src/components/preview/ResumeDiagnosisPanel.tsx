@@ -496,5 +496,3 @@ const ResumeDiagnosisPanel: React.FC = () => {
 
 export default ResumeDiagnosisPanel;
 
-
-
