@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { AlertCircle, Settings, Layout, Type, Upload, FileEdit, PanelsLeftBottom } from "lucide-react";
+import { AlertCircle, Settings, Layout, Type, Upload, FileEdit, PanelsLeftBottom, Move } from "lucide-react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
@@ -113,9 +113,11 @@ function TemplateSheetWrapper({
 
 interface EditorHeaderProps {
   isMobile?: boolean;
+  dragMode?: boolean;
+  onToggleDragMode?: () => void;
 }
 
-export function EditorHeader({ isMobile }: EditorHeaderProps) {
+export function EditorHeader({ isMobile, dragMode, onToggleDragMode }: EditorHeaderProps) {
   const { activeResume, setActiveSection, updateResumeTitle } =
     useResumeStore();
   const { menuSections = [], activeSection } = activeResume || {};
@@ -245,6 +247,20 @@ export function EditorHeader({ isMobile }: EditorHeaderProps) {
               <Type className="w-4 h-4" />
               <span className="hidden lg:inline">样式排版</span>
             </Button>
+
+            {/* 拖拽页面 */}
+            {onToggleDragMode && (
+              <Button
+                variant={dragMode ? "default" : "ghost"}
+                size="sm"
+                onClick={onToggleDragMode}
+                className="flex items-center gap-2"
+                title="拖拽页面"
+              >
+                <Move className="w-4 h-4" />
+                <span className="hidden lg:inline">拖拽页面</span>
+              </Button>
+            )}
           </div>
 
           {/* 导入导出组 */}
@@ -346,4 +362,3 @@ export function EditorHeader({ isMobile }: EditorHeaderProps) {
     </motion.header>
   );
 }
-
