@@ -247,20 +247,6 @@ export function EditorHeader({ isMobile, dragMode, onToggleDragMode }: EditorHea
               <Type className="w-4 h-4" />
               <span className="hidden lg:inline">样式排版</span>
             </Button>
-
-            {/* 拖拽页面 */}
-            {onToggleDragMode && (
-              <Button
-                variant={dragMode ? "default" : "ghost"}
-                size="sm"
-                onClick={onToggleDragMode}
-                className="flex items-center gap-2"
-                title="拖拽页面"
-              >
-                <Move className="w-4 h-4" />
-                <span className="hidden lg:inline">拖拽页面</span>
-              </Button>
-            )}
           </div>
 
           {/* 导入导出组 */}
