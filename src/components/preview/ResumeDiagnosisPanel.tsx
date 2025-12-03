@@ -62,7 +62,7 @@ const SCORING_RULES = {
   SKILLS: {
     moduleDeduct: 15,                      // 大模块缺失减分：-15分
     hasSkills: { add: 2, deduct: 5 },      // 有技能内容：有+2分，无-5分
-    qualityBonus: { add: 3, deduct: 2 },   // 技能内容质量：超过10字+3分，不足-2分
+    qualityBonus: { add: 3, deduct: 2 },   // 技能内容质量：超过15字+3分，不足-2分
   },
   
   // 自定义模块（大模块默认10分）
@@ -91,28 +91,28 @@ const analyzeResume = (resume: ResumeData): DiagnosisResult => {
     score += SCORING_RULES.BASIC_INFO.name.add;
   } else {
     score -= SCORING_RULES.BASIC_INFO.name.deduct;
-    basicIssues.push("缺少姓名");
+    basicIssues.push("缺少姓名（-3分）");
   }
   
   if (resume.basic.email && resume.basic.email.trim() !== "") {
     score += SCORING_RULES.BASIC_INFO.email.add;
   } else {
     score -= SCORING_RULES.BASIC_INFO.email.deduct;
-    basicIssues.push("缺少邮箱");
+    basicIssues.push("缺少邮箱（-2分）");
   }
   
   if (resume.basic.phone && resume.basic.phone.trim() !== "") {
     score += SCORING_RULES.BASIC_INFO.phone.add;
   } else {
     score -= SCORING_RULES.BASIC_INFO.phone.deduct;
-    basicIssues.push("缺少电话");
+    basicIssues.push("缺少电话（-3分）");
   }
   
   if (resume.basic.title && resume.basic.title.trim() !== "") {
     score += SCORING_RULES.BASIC_INFO.title.add;
   } else {
     score -= SCORING_RULES.BASIC_INFO.title.deduct;
-    basicIssues.push("缺少职位/标题");
+    basicIssues.push("缺少职位/标题（-5分）");
   }
   
   if (basicIssues.length > 0) {
@@ -129,35 +129,45 @@ const analyzeResume = (resume: ResumeData): DiagnosisResult => {
   if (resume.experience.length > 0) {
     score += SCORING_RULES.EXPERIENCE.hasExperience.add;
     
-    // 计算完整经历的数量（最多2条）
-    const experiencesToCheck = resume.experience.slice(0, SCORING_RULES.EXPERIENCE.maxExperiences);
-    
-    experiencesToCheck.forEach((exp, index) => {
+    // 检查所有经历，但只对前N条进行评分
+    resume.experience.forEach((exp, index) => {
       const hasCompany = exp.company && exp.company.trim() !== "";
       const hasPosition = exp.position && exp.position.trim() !== "";
       const hasDetails = exp.details && exp.details.trim() !== "";
+      const isInScoringRange = index < SCORING_RULES.EXPERIENCE.maxExperiences;
+      const rangeNote = isInScoringRange ? "" : "（不在评分范围）";
       
       if (hasCompany && hasPosition && hasDetails) {
-        // 完整经历加分
-        score += SCORING_RULES.EXPERIENCE.perCompleteExp.add;
+        // 完整经历加分（仅前N条）
+        if (isInScoringRange) {
+          score += SCORING_RULES.EXPERIENCE.perCompleteExp.add;
+        }
+        
         // 描述质量检查
         if (exp.details.trim().length >= 20) {
-          score += SCORING_RULES.EXPERIENCE.qualityBonus.add;
+          if (isInScoringRange) {
+            score += SCORING_RULES.EXPERIENCE.qualityBonus.add;
+          }
         } else {
-          score -= SCORING_RULES.EXPERIENCE.qualityBonus.deduct;
-          experienceIssues.push(`第${index + 1}条经历描述过于简短（建议至少20字）`);
+          if (isInScoringRange) {
+            score -= SCORING_RULES.EXPERIENCE.qualityBonus.deduct;
+          }
+          experienceIssues.push(`第${index + 1}条经历描述过于简短${isInScoringRange ? '（-3分' : rangeNote}，建议至少20字）`);
         }
       } else {
-        // 不完整经历减分
-        score -= SCORING_RULES.EXPERIENCE.perCompleteExp.deduct;
+        // 不完整经历减分（仅前N条）
+        if (isInScoringRange) {
+          score -= SCORING_RULES.EXPERIENCE.perCompleteExp.deduct;
+        }
+        
         if (!hasCompany) {
-          experienceIssues.push(`第${index + 1}条经历缺少公司名称`);
+          experienceIssues.push(`第${index + 1}条经历缺少公司名称${rangeNote}`);
         }
         if (!hasPosition) {
-          experienceIssues.push(`第${index + 1}条经历缺少职位`);
+          experienceIssues.push(`第${index + 1}条经历缺少职位${rangeNote}`);
         }
         if (!hasDetails) {
-          experienceIssues.push(`第${index + 1}条经历缺少描述`);
+          experienceIssues.push(`第${index + 1}条经历缺少描述${rangeNote}`);
         }
       }
     });
@@ -181,24 +191,29 @@ const analyzeResume = (resume: ResumeData): DiagnosisResult => {
   if (resume.education.length > 0) {
     score += SCORING_RULES.EDUCATION.hasEducation.add;
     
-    // 计算完整教育经历的数量（最多2条）
-    const educationsToCheck = resume.education.slice(0, SCORING_RULES.EDUCATION.maxEducations);
-    
-    educationsToCheck.forEach((edu, index) => {
+    // 检查所有教育经历，但只对前N条进行评分
+    resume.education.forEach((edu, index) => {
       const hasSchool = edu.school && edu.school.trim() !== "";
       const hasMajor = edu.major && edu.major.trim() !== "";
+      const isInScoringRange = index < SCORING_RULES.EDUCATION.maxEducations;
+      const rangeNote = isInScoringRange ? "" : "（不在评分范围）";
       
       if (hasSchool && hasMajor) {
-        // 完整教育经历加分
-        score += SCORING_RULES.EDUCATION.perCompleteEdu.add;
+        // 完整教育经历加分（仅前N条）
+        if (isInScoringRange) {
+          score += SCORING_RULES.EDUCATION.perCompleteEdu.add;
+        }
       } else {
-        // 不完整教育经历减分
-        score -= SCORING_RULES.EDUCATION.perCompleteEdu.deduct;
+        // 不完整教育经历减分（仅前N条）
+        if (isInScoringRange) {
+          score -= SCORING_RULES.EDUCATION.perCompleteEdu.deduct;
+        }
+        
         if (!hasSchool) {
-          educationIssues.push(`第${index + 1}条教育经历缺少学校名称`);
+          educationIssues.push(`第${index + 1}条教育经历缺少学校名称${rangeNote}`);
         }
         if (!hasMajor) {
-          educationIssues.push(`第${index + 1}条教育经历缺少专业`);
+          educationIssues.push(`第${index + 1}条教育经历缺少专业${rangeNote}`);
         }
       }
     });
@@ -222,31 +237,41 @@ const analyzeResume = (resume: ResumeData): DiagnosisResult => {
   if (resume.projects.length > 0) {
     score += SCORING_RULES.PROJECTS.hasProject.add;
     
-    // 计算完整项目的数量（最多3个）
-    const projectsToCheck = resume.projects.slice(0, SCORING_RULES.PROJECTS.maxProjects);
-    
-    projectsToCheck.forEach((proj, index) => {
+    // 检查所有项目，但只对前N个进行评分
+    resume.projects.forEach((proj, index) => {
       const hasName = proj.name && proj.name.trim() !== "";
       const hasDescription = proj.description && proj.description.trim() !== "";
+      const isInScoringRange = index < SCORING_RULES.PROJECTS.maxProjects;
+      const rangeNote = isInScoringRange ? "" : "（不在评分范围）";
       
       if (hasName && hasDescription) {
-        // 完整项目加分
-        score += SCORING_RULES.PROJECTS.perCompleteProject.add;
+        // 完整项目加分（仅前N个）
+        if (isInScoringRange) {
+          score += SCORING_RULES.PROJECTS.perCompleteProject.add;
+        }
+        
         // 描述质量检查
         if (proj.description.trim().length >= 20) {
-          score += SCORING_RULES.PROJECTS.qualityBonus.add;
+          if (isInScoringRange) {
+            score += SCORING_RULES.PROJECTS.qualityBonus.add;
+          }
         } else {
-          score -= SCORING_RULES.PROJECTS.qualityBonus.deduct;
-          projectIssues.push(`第${index + 1}个项目描述过于简短（建议至少20字）`);
+          if (isInScoringRange) {
+            score -= SCORING_RULES.PROJECTS.qualityBonus.deduct;
+          }
+          projectIssues.push(`第${index + 1}个项目描述过于简短${isInScoringRange ? '（' : rangeNote}，建议至少20字）`);
         }
       } else {
-        // 不完整项目减分
-        score -= SCORING_RULES.PROJECTS.perCompleteProject.deduct;
+        // 不完整项目减分（仅前N个）
+        if (isInScoringRange) {
+          score -= SCORING_RULES.PROJECTS.perCompleteProject.deduct;
+        }
+        
         if (!hasName) {
-          projectIssues.push(`第${index + 1}个项目缺少项目名称`);
+          projectIssues.push(`第${index + 1}个项目缺少项目名称${rangeNote}`);
         }
         if (!hasDescription) {
-          projectIssues.push(`第${index + 1}个项目缺少描述`);
+          projectIssues.push(`第${index + 1}个项目缺少描述${rangeNote}`);
         }
       }
     });
@@ -269,12 +294,12 @@ const analyzeResume = (resume: ResumeData): DiagnosisResult => {
   const skillIssues: string[] = [];
   if (resume.skillContent && resume.skillContent.trim() !== "") {
     score += SCORING_RULES.SKILLS.hasSkills.add;
-    // 技能内容质量检查（超过10字）
-    if (resume.skillContent.trim().length >= 10) {
+    // 技能内容质量检查（超过15字）
+    if (resume.skillContent.trim().length >= 15) {
       score += SCORING_RULES.SKILLS.qualityBonus.add;
     } else {
       score -= SCORING_RULES.SKILLS.qualityBonus.deduct;
-      skillIssues.push("专业技能描述过于简短（建议至少10字）");
+      skillIssues.push("专业技能描述过于简短（建议至少15字）");
     }
   } else {
     // 大模块缺失减分
@@ -300,38 +325,46 @@ const analyzeResume = (resume: ResumeData): DiagnosisResult => {
   if (customDataKeys.length > 0) {
     // 遍历所有自定义模块
     for (const key of customDataKeys) {
-      if (customModuleCount >= SCORING_RULES.CUSTOM_MODULE.maxModules) break;
-      
       const moduleData = resume.customData[key];
       if (moduleData && moduleData.length > 0) {
-        // 检查模块中的每个项目
+        // 检查模块中的所有项目
         moduleData.forEach((item, index) => {
-          if (customModuleCount >= SCORING_RULES.CUSTOM_MODULE.maxModules) return;
-          
           const hasTitle = item.title && item.title.trim() !== "";
           const hasDescription = item.description && item.description.trim() !== "";
+          const isInScoringRange = customModuleCount < SCORING_RULES.CUSTOM_MODULE.maxModules;
+          const rangeNote = isInScoringRange ? "" : "（不在评分范围）";
           
           if (hasTitle && hasDescription) {
             hasValidCustomModule = true;
-            // 完整的自定义模块加分
-            score += SCORING_RULES.CUSTOM_MODULE.perCompleteModule.add;
-            customModuleCount++;
+            
+            // 完整的自定义模块加分（仅前N个）
+            if (isInScoringRange) {
+              score += SCORING_RULES.CUSTOM_MODULE.perCompleteModule.add;
+              customModuleCount++;
+            }
             
             // 描述质量检查（超过20字）
             if (item.description.trim().length >= 20) {
-              score += SCORING_RULES.CUSTOM_MODULE.qualityBonus.add;
+              if (isInScoringRange) {
+                score += SCORING_RULES.CUSTOM_MODULE.qualityBonus.add;
+              }
             } else {
-              score -= SCORING_RULES.CUSTOM_MODULE.qualityBonus.deduct;
-              customModuleIssues.push(`${key}模块第${index + 1}项描述过于简短（建议至少20字）`);
+              if (isInScoringRange) {
+                score -= SCORING_RULES.CUSTOM_MODULE.qualityBonus.deduct;
+              }
+              customModuleIssues.push(`${key}模块第${index + 1}项描述过于简短${isInScoringRange ? '（' : rangeNote}，建议至少20字）`);
             }
           } else {
-            // 不完整的自定义模块减分
-            score -= SCORING_RULES.CUSTOM_MODULE.perCompleteModule.deduct;
+            // 不完整的自定义模块减分（仅前N个）
+            if (isInScoringRange) {
+              score -= SCORING_RULES.CUSTOM_MODULE.perCompleteModule.deduct;
+            }
+            
             if (!hasTitle) {
-              customModuleIssues.push(`${key}模块第${index + 1}项缺少标题`);
+              customModuleIssues.push(`${key}模块第${index + 1}项缺少标题${rangeNote}`);
             }
             if (!hasDescription) {
-              customModuleIssues.push(`${key}模块第${index + 1}项缺少描述`);
+              customModuleIssues.push(`${key}模块第${index + 1}项缺少描述${rangeNote}`);
             }
           }
         });
@@ -587,6 +620,4 @@ const ResumeDiagnosisPanel: React.FC = () => {
 };
 
 export default ResumeDiagnosisPanel;
-
-
 
