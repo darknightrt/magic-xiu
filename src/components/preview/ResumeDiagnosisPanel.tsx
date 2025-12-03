@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useState, useEffect } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { useResumeStore } from "@/store/useResumeStore";
 import { cn } from "@/lib/utils";
@@ -404,21 +404,37 @@ const CategoryItem: React.FC<{
 };
 
 const ResumeDiagnosisPanel: React.FC = () => {
-  const { activeResume } = useResumeStore();
+  // 直接从 store 获取 activeResume
+  const activeResume = useResumeStore((state: { activeResume: ResumeData | null }) => state.activeResume);
+  
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
+  const [diagnosis, setDiagnosis] = useState<DiagnosisResult | null>(null);
 
-  const diagnosis = useMemo(() => {
-    if (!activeResume) return null;
+  // 使用 useEffect 监听简历数据变化，实时计算分数
+  useEffect(() => {
+    if (!activeResume) {
+      setDiagnosis(null);
+      return;
+    }
+    
+    // 计算诊断结果
     const result = analyzeResume(activeResume);
-    console.log('简历诊断分数:', result.score, '问题数:', result.totalIssues);
-    return result;
+    console.log('简历诊断分数更新:', result.score, '问题数:', result.totalIssues);
+    setDiagnosis(result);
   }, [
-    activeResume?.basic,
-    activeResume?.experience,
-    activeResume?.education,
-    activeResume?.projects,
+    // 监听所有可能影响分数的字段
+    activeResume?.basic?.name,
+    activeResume?.basic?.email,
+    activeResume?.basic?.phone,
+    activeResume?.basic?.title,
+    activeResume?.basic?.photo,
     activeResume?.skillContent,
-    activeResume?.customData,
+    // 使用 JSON.stringify 来检测数组/对象的深层变化
+    JSON.stringify(activeResume?.basic?.customFields),
+    JSON.stringify(activeResume?.experience),
+    JSON.stringify(activeResume?.education),
+    JSON.stringify(activeResume?.projects),
+    JSON.stringify(activeResume?.customData),
   ]);
 
   if (!activeResume || !diagnosis) return null;
