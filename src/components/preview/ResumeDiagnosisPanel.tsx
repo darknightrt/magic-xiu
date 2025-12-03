@@ -91,28 +91,28 @@ const analyzeResume = (resume: ResumeData): DiagnosisResult => {
     score += SCORING_RULES.BASIC_INFO.name.add;
   } else {
     score -= SCORING_RULES.BASIC_INFO.name.deduct;
-    basicIssues.push("缺少姓名（-3分）");
+    basicIssues.push("缺少姓名");
   }
   
   if (resume.basic.email && resume.basic.email.trim() !== "") {
     score += SCORING_RULES.BASIC_INFO.email.add;
   } else {
     score -= SCORING_RULES.BASIC_INFO.email.deduct;
-    basicIssues.push("缺少邮箱（-2分）");
+    basicIssues.push("缺少邮箱");
   }
   
   if (resume.basic.phone && resume.basic.phone.trim() !== "") {
     score += SCORING_RULES.BASIC_INFO.phone.add;
   } else {
     score -= SCORING_RULES.BASIC_INFO.phone.deduct;
-    basicIssues.push("缺少电话（-3分）");
+    basicIssues.push("缺少电话");
   }
   
   if (resume.basic.title && resume.basic.title.trim() !== "") {
     score += SCORING_RULES.BASIC_INFO.title.add;
   } else {
     score -= SCORING_RULES.BASIC_INFO.title.deduct;
-    basicIssues.push("缺少职位/标题（-5分）");
+    basicIssues.push("缺少职位/标题");
   }
   
   if (basicIssues.length > 0) {
@@ -145,7 +145,7 @@ const analyzeResume = (resume: ResumeData): DiagnosisResult => {
           score += SCORING_RULES.EXPERIENCE.qualityBonus.add;
         } else {
           score -= SCORING_RULES.EXPERIENCE.qualityBonus.deduct;
-          experienceIssues.push(`第${index + 1}条经历描述过于简短（-3分，建议至少20字）`);
+          experienceIssues.push(`第${index + 1}条经历描述过于简短（建议至少20字）`);
         }
       } else {
         // 不完整经历减分
@@ -587,4 +587,5 @@ const ResumeDiagnosisPanel: React.FC = () => {
 };
 
 export default ResumeDiagnosisPanel;
+
 
