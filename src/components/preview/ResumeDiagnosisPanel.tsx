@@ -21,12 +21,12 @@ interface DiagnosisResult {
 
 // 评分规则配置
 const SCORING_RULES = {
-  // 基本信息（总分20分）
+  // 基本信息（总分8分）
   BASIC_INFO: {
-    name: 5,           // 姓名：5分
-    email: 5,          // 邮箱：5分
-    phone: 5,          // 电话：5分
-    title: 5,          // 职位/标题：5分
+    name: 1,           // 姓名：5分
+    email: 2,          // 邮箱：5分
+    phone: 2,          // 电话：5分
+    title: 3,          // 职位/标题：5分
   },
   // 工作经历（总分30分）
   EXPERIENCE: {
@@ -56,7 +56,7 @@ const SCORING_RULES = {
   // 其他加分项（总分5分）
   BONUS: {
     photo: 2,                    // 有照片：2分
-    customFields: 3,             // 有自定义字段：3分
+    customFields: 15,             // 有自定义字段：3分
   },
 };
 
@@ -511,4 +511,5 @@ const ResumeDiagnosisPanel: React.FC = () => {
 };
 
 export default ResumeDiagnosisPanel;
+
 
