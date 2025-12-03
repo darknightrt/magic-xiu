@@ -237,7 +237,7 @@ const analyzeResume = (resume: ResumeData): DiagnosisResult => {
           score += SCORING_RULES.PROJECTS.qualityBonus.add;
         } else {
           score -= SCORING_RULES.PROJECTS.qualityBonus.deduct;
-          projectIssues.push(`第${index + 1}个项目描述过于简短（-3分，建议至少20字）`);
+          projectIssues.push(`第${index + 1}个项目描述过于简短（建议至少20字）`);
         }
       } else {
         // 不完整项目减分
@@ -274,7 +274,7 @@ const analyzeResume = (resume: ResumeData): DiagnosisResult => {
       score += SCORING_RULES.SKILLS.qualityBonus.add;
     } else {
       score -= SCORING_RULES.SKILLS.qualityBonus.deduct;
-      skillIssues.push("专业技能描述过于简短（-2分，建议至少10字）");
+      skillIssues.push("专业技能描述过于简短（建议至少10字）");
     }
   } else {
     // 大模块缺失减分
@@ -322,7 +322,7 @@ const analyzeResume = (resume: ResumeData): DiagnosisResult => {
               score += SCORING_RULES.CUSTOM_MODULE.qualityBonus.add;
             } else {
               score -= SCORING_RULES.CUSTOM_MODULE.qualityBonus.deduct;
-              customModuleIssues.push(`${key}模块第${index + 1}项描述过于简短（-3分，建议至少20字）`);
+              customModuleIssues.push(`${key}模块第${index + 1}项描述过于简短（建议至少20字）`);
             }
           } else {
             // 不完整的自定义模块减分
@@ -587,5 +587,6 @@ const ResumeDiagnosisPanel: React.FC = () => {
 };
 
 export default ResumeDiagnosisPanel;
+
 
 
