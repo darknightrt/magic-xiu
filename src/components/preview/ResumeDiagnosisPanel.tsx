@@ -19,44 +19,49 @@ interface DiagnosisResult {
   issues: DiagnosisIssue[];
 }
 
-// 评分规则配置
+// 评分规则配置（总分100分）
 const SCORING_RULES = {
-  // 基本信息（总分20分）
+  // 基本信息（总分13分）
   BASIC_INFO: {
-    name: 5,           // 姓名：5分
-    email: 5,          // 邮箱：5分
-    phone: 5,          // 电话：5分
+    name: 3,           // 姓名：3分
+    email: 2,          // 邮箱：2分
+    phone: 3,          // 电话：3分
     title: 5,          // 职位/标题：5分
   },
-  // 工作经历（总分30分）
+  // 工作经历（总分20分）
   EXPERIENCE: {
-    hasExperience: 10,           // 有至少1条工作经历：10分
-    perCompleteExp: 10,          // 每条完整经历：10分（公司+职位+描述）
+    hasExperience: 5,            // 有至少1条工作经历：5分
+    perCompleteExp: 5,           // 每条完整经历：5分（公司+职位+描述）
     qualityBonus: 5,             // 描述质量加分（超过20字）：5分
-    maxExperiences: 3,           // 最多计算3条经历
+    maxExperiences: 2,           // 最多计算2条经历
   },
   // 教育经历（总分15分）
   EDUCATION: {
     hasEducation: 5,             // 有至少1条教育经历：5分
-    perCompleteEdu: 5,          // 每条完整教育经历：5分（学校+专业）
+    perCompleteEdu: 5,           // 每条完整教育经历：5分（学校+专业）
     maxEducations: 2,            // 最多计算2条教育经历
   },
-  // 项目经验（总分20分）
+  // 项目经验（总分30分）
   PROJECTS: {
-    hasProject: 10,              // 有至少1个项目：10分
-    perCompleteProject: 10,      // 每个完整项目：10分（名称+描述）
+    hasProject: 5,               // 有至少1个项目：5分
+    perCompleteProject: 5,       // 每个完整项目：5分（名称+描述）
     qualityBonus: 5,             // 描述质量加分（超过20字）：5分
-    maxProjects: 2,              // 最多计算2个项目
+    maxProjects: 3,              // 最多计算3个项目
   },
-  // 专业技能（总分10分）
+  // 专业技能（总分5分）
   SKILLS: {
-    hasSkills: 10,               // 有技能内容：10分
-    qualityBonus: 0,             // 技能内容质量（超过10字）：已包含在基础分中
+    hasSkills: 2,                // 有技能内容：2分
+    qualityBonus: 3,             // 技能内容质量（超过10字）：3分
   },
-  // 其他加分项（总分5分）
+  // 自定义模块（总分15分）
+  CUSTOM_MODULE: {
+    perCompleteModule: 10,       // 完整的自定义模块：10分（名称+描述）
+    qualityBonus: 5,             // 描述质量加分（超过20字）：5分
+    maxModules: 1,               // 最多计算1个自定义模块
+  },
+  // 其他加分项（总分2分）
   BONUS: {
     photo: 2,                    // 有照片：2分
-    customFields: 3,             // 有自定义字段：3分
   },
 };
 
@@ -106,7 +111,7 @@ const analyzeResume = (resume: ResumeData): DiagnosisResult => {
   if (resume.experience.length > 0) {
     score += SCORING_RULES.EXPERIENCE.hasExperience;
     
-    // 计算完整经历的数量（最多3条）
+    // 计算完整经历的数量（最多2条）
     const completeExperiences = resume.experience
       .slice(0, SCORING_RULES.EXPERIENCE.maxExperiences)
       .filter((exp) => {
@@ -196,7 +201,7 @@ const analyzeResume = (resume: ResumeData): DiagnosisResult => {
   if (resume.projects.length > 0) {
     score += SCORING_RULES.PROJECTS.hasProject;
     
-    // 计算完整项目的数量（最多2个）
+    // 计算完整项目的数量（最多3个）
     const completeProjects = resume.projects
       .slice(0, SCORING_RULES.PROJECTS.maxProjects)
       .filter((proj) => {
@@ -240,6 +245,12 @@ const analyzeResume = (resume: ResumeData): DiagnosisResult => {
   const skillIssues: string[] = [];
   if (resume.skillContent && resume.skillContent.trim() !== "") {
     score += SCORING_RULES.SKILLS.hasSkills;
+    // 技能内容质量加分（超过10字）
+    if (resume.skillContent.trim().length >= 10) {
+      score += SCORING_RULES.SKILLS.qualityBonus;
+    } else {
+      skillIssues.push("专业技能描述过于简短（建议至少10字）");
+    }
   } else {
     skillIssues.push("缺少专业技能");
   }
@@ -253,35 +264,62 @@ const analyzeResume = (resume: ResumeData): DiagnosisResult => {
     totalIssues += skillIssues.length;
   }
 
-  // 6. 其他加分项
+  // 6. 自定义模块评分和检查（总分15分）
+  const customModuleIssues: string[] = [];
+  const customDataKeys = Object.keys(resume.customData || {});
+  let customModuleCount = 0;
+  
+  if (customDataKeys.length > 0) {
+    // 遍历所有自定义模块
+    for (const key of customDataKeys) {
+      if (customModuleCount >= SCORING_RULES.CUSTOM_MODULE.maxModules) break;
+      
+      const moduleData = resume.customData[key];
+      if (moduleData && moduleData.length > 0) {
+        // 检查模块中的每个项目
+        moduleData.forEach((item, index) => {
+          if (customModuleCount >= SCORING_RULES.CUSTOM_MODULE.maxModules) return;
+          
+          const hasTitle = item.title && item.title.trim() !== "";
+          const hasDescription = item.description && item.description.trim() !== "";
+          
+          if (hasTitle && hasDescription) {
+            // 完整的自定义模块加分
+            score += SCORING_RULES.CUSTOM_MODULE.perCompleteModule;
+            customModuleCount++;
+            
+            // 描述质量加分（超过20字）
+            if (item.description.trim().length >= 20) {
+              score += SCORING_RULES.CUSTOM_MODULE.qualityBonus;
+            } else {
+              customModuleIssues.push(`${key}模块第${index + 1}项描述过于简短（建议至少20字）`);
+            }
+          } else {
+            if (!hasTitle) {
+              customModuleIssues.push(`${key}模块第${index + 1}项缺少标题`);
+            }
+            if (!hasDescription) {
+              customModuleIssues.push(`${key}模块第${index + 1}项缺少描述`);
+            }
+          }
+        });
+      }
+    }
+  }
+  
+  if (customModuleIssues.length > 0) {
+    issues.push({
+      category: "自定义模块",
+      count: customModuleIssues.length,
+      details: customModuleIssues,
+    });
+    totalIssues += customModuleIssues.length;
+  }
+
+  // 7. 其他加分项
   // 照片加分
   if (resume.basic.photo && resume.basic.photo.trim() !== "") {
     score += SCORING_RULES.BONUS.photo;
-  }
-  
-  // 自定义字段加分
-  const customFieldsCount = Object.keys(resume.basic.customFields || {}).length;
-  if (customFieldsCount > 0) {
-    score += SCORING_RULES.BONUS.customFields;
-  }
-
-  // 7. 校内经历检查（可选，不影响分数）
-  const campusIssues: string[] = [];
-  const campusData = resume.customData["campus"] || resume.customData["校内经历"];
-  if (campusData && campusData.length > 0) {
-    campusData.forEach((item, index) => {
-      if (!item.title || item.title.trim() === "") {
-        campusIssues.push(`第${index + 1}条校内经历缺少标题`);
-      }
-    });
-  }
-  if (campusIssues.length > 0) {
-    issues.push({
-      category: "校内经历",
-      count: campusIssues.length,
-      details: campusIssues,
-    });
-    totalIssues += campusIssues.length;
   }
 
   // 确保分数在0-100之间
