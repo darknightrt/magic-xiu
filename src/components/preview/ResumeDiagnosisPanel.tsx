@@ -580,32 +580,24 @@ const CategoryItem: React.FC<{
 };
 
 const ResumeDiagnosisPanel: React.FC = () => {
-  // 直接从 store 获取 activeResume
+  // 从 store 获取影响评分的所有字段，确保任何变化都能触发重新计算
   const activeResume = useResumeStore((state: { activeResume: ResumeData | null }) => state.activeResume);
+  const basic = useResumeStore((state) => state.activeResume?.basic);
+  const experience = useResumeStore((state) => state.activeResume?.experience);
+  const education = useResumeStore((state) => state.activeResume?.education);
+  const projects = useResumeStore((state) => state.activeResume?.projects);
+  const skillContent = useResumeStore((state) => state.activeResume?.skillContent);
+  const customData = useResumeStore((state) => state.activeResume?.customData);
   
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
 
-  // 创建序列化的依赖值，确保深度比较触发更新
-  const resumeDataHash = useMemo(() => {
-    if (!activeResume) return null;
-    // 提取影响评分的关键字段进行序列化
-    return JSON.stringify({
-      basic: activeResume.basic,
-      experience: activeResume.experience,
-      education: activeResume.education,
-      projects: activeResume.projects,
-      skillContent: activeResume.skillContent,
-      customData: activeResume.customData,
-    });
-  }, [activeResume]);
-
-  // 使用 useMemo 实时计算诊断结果，确保数据变化时立即更新
+  // 使用 useMemo 实时计算诊断结果，依赖所有影响评分的字段
   const diagnosis = useMemo<DiagnosisResult | null>(() => {
     if (!activeResume) return null;
     const result = analyzeResume(activeResume);
     console.log('简历诊断分数更新:', result.score, '问题数:', result.totalIssues);
     return result;
-  }, [resumeDataHash, activeResume]);
+  }, [activeResume, basic, experience, education, projects, skillContent, customData]);
 
   if (!activeResume || !diagnosis) return null;
 
