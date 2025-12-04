@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { useResumeStore } from "@/store/useResumeStore";
 import { cn } from "@/lib/utils";
@@ -37,7 +37,6 @@ const SCORING_RULES = {
     moduleDeduct: 15,                      // 大模块缺失减分：-15分
     hasExperience: { add: 5, deduct: 5 },  // 有至少1条工作经历：有+5分，无-5分
     perCompleteExp: { add: 5, deduct: 5 }, // 每条完整经历：完整+5分，不完整-5分
-    qualityBonus: { add: 5, deduct: 3 },   // 描述质量：超过20字+5分，不足-3分
     maxExperiences: 2,                     // 最多计算2条经历
   },
   
@@ -46,7 +45,6 @@ const SCORING_RULES = {
     moduleDeduct: 15,                      // 大模块缺失减分：-15分
     hasEducation: { add: 5, deduct: 5 },   // 有至少1条教育经历：有+5分，无-5分
     perCompleteEdu: { add: 5, deduct: 5 }, // 每条完整教育经历：完整+5分，不完整-5分
-    qualityBonus: { add: 5, deduct: 3 },   // 描述质量：超过20字+5分，不足-3分
     maxEducations: 2,                      // 最多计算2条教育经历
   },
   
@@ -55,7 +53,6 @@ const SCORING_RULES = {
     moduleDeduct: 15,                          // 大模块缺失减分：-15分
     hasProject: { add: 5, deduct: 5 },         // 有至少1个项目：有+5分，无-5分
     perCompleteProject: { add: 5, deduct: 5 }, // 每个完整项目：完整+5分，不完整-5分
-    qualityBonus: { add: 5, deduct: 3 },       // 描述质量：超过20字+5分，不足-3分
     maxProjects: 3,                            // 最多计算3个项目
   },
   
@@ -63,14 +60,12 @@ const SCORING_RULES = {
   SKILLS: {
     moduleDeduct: 15,                      // 大模块缺失减分：-15分
     hasSkills: { add: 2, deduct: 5 },      // 有技能内容：有+2分，无-5分
-    qualityBonus: { add: 3, deduct: 2 },   // 技能内容质量：超过15字+3分，不足-2分
   },
   
   // 自定义模块（大模块默认10分）
   CUSTOM_MODULE: {
     moduleDeduct: 10,                          // 大模块缺失减分：-10分
     perCompleteModule: { add: 10, deduct: 5 }, // 完整的自定义模块：完整+10分，不完整-5分
-    qualityBonus: { add: 5, deduct: 3 },       // 描述质量：超过20字+5分，不足-3分
     maxModules: 1,                             // 最多计算1个自定义模块
   },
   
@@ -78,6 +73,77 @@ const SCORING_RULES = {
   BONUS: {
     photo: { add: 2, deduct: 0 },          // 有照片：+2分，无不减分
   },
+};
+
+// 内容质量评分规则（按字数分级）
+const QUALITY_THRESHOLDS = {
+  // 工作经历/项目/教育经历描述质量
+  DESCRIPTION: {
+    excellent: { min: 100, add: 8 },   // 优秀：>=100字，+8分
+    good: { min: 50, add: 5 },         // 良好：>=50字，+5分
+    normal: { min: 20, add: 2 },       // 一般：>=20字，+2分
+    poor: { min: 1, add: 0 },          // 较差：1-19字，+0分
+    empty: { deduct: 3 },              // 空：-3分
+  },
+  // 专业技能描述质量
+  SKILLS: {
+    excellent: { min: 80, add: 5 },    // 优秀：>=80字，+5分
+    good: { min: 40, add: 3 },         // 良好：>=40字，+3分
+    normal: { min: 15, add: 1 },       // 一般：>=15字，+1分
+    poor: { min: 1, add: 0 },          // 较差：1-14字，+0分
+    empty: { deduct: 2 },              // 空：-2分
+  },
+  // 自定义模块描述质量
+  CUSTOM: {
+    excellent: { min: 80, add: 6 },    // 优秀：>=80字，+6分
+    good: { min: 40, add: 4 },         // 良好：>=40字，+4分
+    normal: { min: 20, add: 2 },       // 一般：>=20字，+2分
+    poor: { min: 1, add: 0 },          // 较差：1-19字，+0分
+    empty: { deduct: 3 },              // 空：-3分
+  },
+};
+
+// 根据字数计算内容质量分数
+const calculateQualityScore = (
+  text: string | undefined,
+  type: 'DESCRIPTION' | 'SKILLS' | 'CUSTOM'
+): { score: number; level: string; suggestion: string } => {
+  const thresholds = QUALITY_THRESHOLDS[type];
+  const length = text?.trim().length || 0;
+  
+  if (length === 0) {
+    return { 
+      score: -thresholds.empty.deduct, 
+      level: 'empty', 
+      suggestion: `缺少描述（-${thresholds.empty.deduct}分）` 
+    };
+  }
+  if (length >= thresholds.excellent.min) {
+    return { 
+      score: thresholds.excellent.add, 
+      level: 'excellent', 
+      suggestion: '' 
+    };
+  }
+  if (length >= thresholds.good.min) {
+    return { 
+      score: thresholds.good.add, 
+      level: 'good', 
+      suggestion: `描述良好（+${thresholds.good.add}分），建议扩充至${thresholds.excellent.min}字以上` 
+    };
+  }
+  if (length >= thresholds.normal.min) {
+    return { 
+      score: thresholds.normal.add, 
+      level: 'normal', 
+      suggestion: `描述一般（+${thresholds.normal.add}分），建议扩充至${thresholds.good.min}字以上` 
+    };
+  }
+  return { 
+    score: thresholds.poor.add, 
+    level: 'poor', 
+    suggestion: `描述过于简短（${length}字），建议至少${thresholds.normal.min}字` 
+  };
 };
 
 // 简历评分和问题检测（采用加减分制，基础分100分）
@@ -138,22 +204,19 @@ const analyzeResume = (resume: ResumeData): DiagnosisResult => {
       const isInScoringRange = index < SCORING_RULES.EXPERIENCE.maxExperiences;
       const rangeNote = isInScoringRange ? "" : "（不在评分范围）";
       
-      if (hasCompany && hasPosition && hasDetails) {
+      if (hasCompany && hasPosition) {
         // 完整经历加分（仅前N条）
         if (isInScoringRange) {
           score += SCORING_RULES.EXPERIENCE.perCompleteExp.add;
         }
         
-        // 描述质量检查
-        if (exp.details.trim().length >= 20) {
-          if (isInScoringRange) {
-            score += SCORING_RULES.EXPERIENCE.qualityBonus.add;
-          }
-        } else {
-          if (isInScoringRange) {
-            score -= SCORING_RULES.EXPERIENCE.qualityBonus.deduct;
-          }
-          experienceIssues.push(`第${index + 1}条经历描述过于简短${isInScoringRange ? '（-3分' : rangeNote}，建议至少20字）`);
+        // 描述质量检查（使用新的分级评分）
+        const qualityResult = calculateQualityScore(exp.details, 'DESCRIPTION');
+        if (isInScoringRange) {
+          score += qualityResult.score;
+        }
+        if (qualityResult.suggestion) {
+          experienceIssues.push(`第${index + 1}条经历${qualityResult.suggestion}${!isInScoringRange ? rangeNote : ''}`);
         }
       } else {
         // 不完整经历减分（仅前N条）
@@ -206,18 +269,13 @@ const analyzeResume = (resume: ResumeData): DiagnosisResult => {
           score += SCORING_RULES.EDUCATION.perCompleteEdu.add;
         }
         
-        // 描述质量检查（超过20字）
-        if (hasDescription && edu.description) {
-          if (edu.description.trim().length >= 20) {
-            if (isInScoringRange) {
-              score += SCORING_RULES.EDUCATION.qualityBonus.add;
-            }
-          } else {
-            if (isInScoringRange) {
-              score -= SCORING_RULES.EDUCATION.qualityBonus.deduct;
-            }
-            educationIssues.push(`第${index + 1}条教育经历描述过于简短${isInScoringRange ? '（-3分' : rangeNote}，建议至少20字）`);
-          }
+        // 描述质量检查（使用新的分级评分）
+        const qualityResult = calculateQualityScore(edu.description, 'DESCRIPTION');
+        if (isInScoringRange) {
+          score += qualityResult.score;
+        }
+        if (qualityResult.suggestion) {
+          educationIssues.push(`第${index + 1}条教育经历${qualityResult.suggestion}${!isInScoringRange ? rangeNote : ''}`);
         }
       } else {
         // 不完整教育经历减分（仅前N条）
@@ -260,22 +318,19 @@ const analyzeResume = (resume: ResumeData): DiagnosisResult => {
       const isInScoringRange = index < SCORING_RULES.PROJECTS.maxProjects;
       const rangeNote = isInScoringRange ? "" : "（不在评分范围）";
       
-      if (hasName && hasDescription) {
+      if (hasName) {
         // 完整项目加分（仅前N个）
         if (isInScoringRange) {
           score += SCORING_RULES.PROJECTS.perCompleteProject.add;
         }
         
-        // 描述质量检查
-        if (proj.description.trim().length >= 20) {
-          if (isInScoringRange) {
-            score += SCORING_RULES.PROJECTS.qualityBonus.add;
-          }
-        } else {
-          if (isInScoringRange) {
-            score -= SCORING_RULES.PROJECTS.qualityBonus.deduct;
-          }
-          projectIssues.push(`第${index + 1}个项目描述过于简短${isInScoringRange ? '（-3分' : rangeNote}，建议至少20字）`);
+        // 描述质量检查（使用新的分级评分）
+        const qualityResult = calculateQualityScore(proj.description, 'DESCRIPTION');
+        if (isInScoringRange) {
+          score += qualityResult.score;
+        }
+        if (qualityResult.suggestion) {
+          projectIssues.push(`第${index + 1}个项目${qualityResult.suggestion}${!isInScoringRange ? rangeNote : ''}`);
         }
       } else {
         // 不完整项目减分（仅前N个）
@@ -310,12 +365,11 @@ const analyzeResume = (resume: ResumeData): DiagnosisResult => {
   const skillIssues: string[] = [];
   if (resume.skillContent && resume.skillContent.trim() !== "") {
     score += SCORING_RULES.SKILLS.hasSkills.add;
-    // 技能内容质量检查（超过15字）
-    if (resume.skillContent.trim().length >= 15) {
-      score += SCORING_RULES.SKILLS.qualityBonus.add;
-    } else {
-      score -= SCORING_RULES.SKILLS.qualityBonus.deduct;
-      skillIssues.push("专业技能描述过于简短（-2分，建议至少15字）");
+    // 技能内容质量检查（使用新的分级评分）
+    const qualityResult = calculateQualityScore(resume.skillContent, 'SKILLS');
+    score += qualityResult.score;
+    if (qualityResult.suggestion) {
+      skillIssues.push(`专业技能${qualityResult.suggestion}`);
     }
   } else {
     // 大模块缺失减分
@@ -359,16 +413,13 @@ const analyzeResume = (resume: ResumeData): DiagnosisResult => {
               customModuleCount++;
             }
             
-            // 描述质量检查（超过20字）
-            if (item.description.trim().length >= 20) {
-              if (isInScoringRange) {
-                score += SCORING_RULES.CUSTOM_MODULE.qualityBonus.add;
-              }
-            } else {
-              if (isInScoringRange) {
-                score -= SCORING_RULES.CUSTOM_MODULE.qualityBonus.deduct;
-              }
-              customModuleIssues.push(`${key}模块第${index + 1}项描述过于简短${isInScoringRange ? '（-3分' : rangeNote}，建议至少20字）`);
+            // 描述质量检查（使用新的分级评分）
+            const qualityResult = calculateQualityScore(item.description, 'CUSTOM');
+            if (isInScoringRange) {
+              score += qualityResult.score;
+            }
+            if (qualityResult.suggestion) {
+              customModuleIssues.push(`${key}模块第${index + 1}项${qualityResult.suggestion}${!isInScoringRange ? rangeNote : ''}`);
             }
           } else {
             // 不完整的自定义模块减分（仅前N个）
@@ -533,34 +584,29 @@ const ResumeDiagnosisPanel: React.FC = () => {
   const activeResume = useResumeStore((state: { activeResume: ResumeData | null }) => state.activeResume);
   
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
-  const [diagnosis, setDiagnosis] = useState<DiagnosisResult | null>(null);
 
-  // 使用 useEffect 监听简历数据变化，实时计算分数
-  useEffect(() => {
-    if (!activeResume) {
-      setDiagnosis(null);
-      return;
-    }
-    
-    // 计算诊断结果
+  // 创建序列化的依赖值，确保深度比较触发更新
+  const resumeDataHash = useMemo(() => {
+    if (!activeResume) return null;
+    // 提取影响评分的关键字段进行序列化
+    return JSON.stringify({
+      basic: activeResume.basic,
+      experience: activeResume.experience,
+      education: activeResume.education,
+      projects: activeResume.projects,
+      skillContent: activeResume.skillContent,
+      customData: activeResume.customData,
+    });
+  }, [activeResume]);
+
+  // 使用 useMemo 实时计算诊断结果，确保数据变化时立即更新
+  const diagnosis = useMemo<DiagnosisResult | null>(() => {
+    if (!activeResume) return null;
     const result = analyzeResume(activeResume);
-    console.log('简历诊断分数更新:', result.score, '问题数:', result.totalIssues, '简历数据:', activeResume);
-    setDiagnosis(result);
-  }, [
-    // 监听所有可能影响分数的字段
-    activeResume?.basic?.name,
-    activeResume?.basic?.email,
-    activeResume?.basic?.phone,
-    activeResume?.basic?.title,
-    activeResume?.basic?.photo,
-    activeResume?.skillContent,
-    // 使用 JSON.stringify 来检测数组/对象的深层变化
-    JSON.stringify(activeResume?.basic?.customFields),
-    JSON.stringify(activeResume?.experience),
-    JSON.stringify(activeResume?.education),
-    JSON.stringify(activeResume?.projects),
-    JSON.stringify(activeResume?.customData),
-  ]);
+    console.log('简历诊断分数更新:', result.score, '问题数:', result.totalIssues);
+    return result;
+  }, [resumeDataHash, activeResume]);
+
   if (!activeResume || !diagnosis) return null;
 
   const toggleCategory = (category: string) => {
@@ -635,5 +681,4 @@ const ResumeDiagnosisPanel: React.FC = () => {
 };
 
 export default ResumeDiagnosisPanel;
-
 
