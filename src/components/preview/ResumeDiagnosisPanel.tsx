@@ -45,6 +45,7 @@ const SCORING_RULES = {
   EDUCATION: {
     moduleDeduct: 15,                      // 大模块缺失减分：-15分
     hasEducation: { add: 5, deduct: 5 },   // 有至少1条教育经历：有+5分，无-5分
+    qualityBonus: { add: 5, deduct: 3 },   //描述描述质量：超过20字+5分，不足-3分
     perCompleteEdu: { add: 5, deduct: 5 }, // 每条完整教育经历：完整+5分，不完整-5分
     maxEducations: 2,                      // 最多计算2条教育经历
   },
@@ -620,5 +621,6 @@ const ResumeDiagnosisPanel: React.FC = () => {
 };
 
 export default ResumeDiagnosisPanel;
+
 
 
