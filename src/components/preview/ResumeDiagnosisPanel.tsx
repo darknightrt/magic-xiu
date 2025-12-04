@@ -91,28 +91,28 @@ const analyzeResume = (resume: ResumeData): DiagnosisResult => {
     score += SCORING_RULES.BASIC_INFO.name.add;
   } else {
     score -= SCORING_RULES.BASIC_INFO.name.deduct;
-    basicIssues.push("缺少姓名（-3分）");
+    basicIssues.push("缺少姓名");
   }
   
   if (resume.basic.email && resume.basic.email.trim() !== "") {
     score += SCORING_RULES.BASIC_INFO.email.add;
   } else {
     score -= SCORING_RULES.BASIC_INFO.email.deduct;
-    basicIssues.push("缺少邮箱（-2分）");
+    basicIssues.push("缺少邮箱");
   }
   
   if (resume.basic.phone && resume.basic.phone.trim() !== "") {
     score += SCORING_RULES.BASIC_INFO.phone.add;
   } else {
     score -= SCORING_RULES.BASIC_INFO.phone.deduct;
-    basicIssues.push("缺少电话（-3分）");
+    basicIssues.push("缺少电话");
   }
   
   if (resume.basic.title && resume.basic.title.trim() !== "") {
     score += SCORING_RULES.BASIC_INFO.title.add;
   } else {
     score -= SCORING_RULES.BASIC_INFO.title.deduct;
-    basicIssues.push("缺少职位/标题（-5分）");
+    basicIssues.push("缺少职位/标题");
   }
   
   if (basicIssues.length > 0) {
@@ -152,7 +152,7 @@ const analyzeResume = (resume: ResumeData): DiagnosisResult => {
           if (isInScoringRange) {
             score -= SCORING_RULES.EXPERIENCE.qualityBonus.deduct;
           }
-          experienceIssues.push(`第${index + 1}条经历描述过于简短${isInScoringRange ? '（-3分' : rangeNote}，建议至少20字）`);
+          experienceIssues.push(`第${index + 1}条经历描述过于简短${isInScoringRange ? '（' : rangeNote}，建议至少20字）`);
         }
       } else {
         // 不完整经历减分（仅前N条）
@@ -174,7 +174,7 @@ const analyzeResume = (resume: ResumeData): DiagnosisResult => {
   } else {
     // 大模块缺失减分
     score -= SCORING_RULES.EXPERIENCE.moduleDeduct;
-    experienceIssues.push("缺少工作/实习经历（-15分）");
+    experienceIssues.push("缺少工作/实习经历");
   }
   
   if (experienceIssues.length > 0) {
@@ -220,7 +220,7 @@ const analyzeResume = (resume: ResumeData): DiagnosisResult => {
   } else {
     // 大模块缺失减分
     score -= SCORING_RULES.EDUCATION.moduleDeduct;
-    educationIssues.push("缺少教育经历（-15分）");
+    educationIssues.push("缺少教育经历");
   }
   
   if (educationIssues.length > 0) {
@@ -278,7 +278,7 @@ const analyzeResume = (resume: ResumeData): DiagnosisResult => {
   } else {
     // 大模块缺失减分
     score -= SCORING_RULES.PROJECTS.moduleDeduct;
-    projectIssues.push("缺少项目经验（-15分）");
+    projectIssues.push("缺少项目经验");
   }
   
   if (projectIssues.length > 0) {
@@ -304,7 +304,7 @@ const analyzeResume = (resume: ResumeData): DiagnosisResult => {
   } else {
     // 大模块缺失减分
     score -= SCORING_RULES.SKILLS.moduleDeduct;
-    skillIssues.push("缺少专业技能（-15分）");
+    skillIssues.push("缺少专业技能");
   }
   
   if (skillIssues.length > 0) {
@@ -375,7 +375,7 @@ const analyzeResume = (resume: ResumeData): DiagnosisResult => {
   // 如果没有任何有效的自定义模块，减去大模块分数
   if (!hasValidCustomModule && customDataKeys.length === 0) {
     score -= SCORING_RULES.CUSTOM_MODULE.moduleDeduct;
-    customModuleIssues.push("缺少自定义模块（-10分）");
+    customModuleIssues.push("缺少自定义模块");
   }
   
   if (customModuleIssues.length > 0) {
@@ -620,4 +620,5 @@ const ResumeDiagnosisPanel: React.FC = () => {
 };
 
 export default ResumeDiagnosisPanel;
+
 
