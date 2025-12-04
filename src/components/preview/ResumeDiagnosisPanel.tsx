@@ -546,8 +546,21 @@ const ResumeDiagnosisPanel: React.FC = () => {
     const result = analyzeResume(activeResume);
     console.log('简历诊断分数更新:', result.score, '问题数:', result.totalIssues, '简历数据:', activeResume);
     setDiagnosis(result);
-  }, [activeResume]);
-
+  }, [
+    // 监听所有可能影响分数的字段
+    activeResume?.basic?.name,
+    activeResume?.basic?.email,
+    activeResume?.basic?.phone,
+    activeResume?.basic?.title,
+    activeResume?.basic?.photo,
+    activeResume?.skillContent,
+    // 使用 JSON.stringify 来检测数组/对象的深层变化
+    JSON.stringify(activeResume?.basic?.customFields),
+    JSON.stringify(activeResume?.experience),
+    JSON.stringify(activeResume?.education),
+    JSON.stringify(activeResume?.projects),
+    JSON.stringify(activeResume?.customData),
+  ]);
   if (!activeResume || !diagnosis) return null;
 
   const toggleCategory = (category: string) => {
@@ -622,4 +635,5 @@ const ResumeDiagnosisPanel: React.FC = () => {
 };
 
 export default ResumeDiagnosisPanel;
+
 
