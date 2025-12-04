@@ -45,8 +45,8 @@ const SCORING_RULES = {
   EDUCATION: {
     moduleDeduct: 15,                      // 大模块缺失减分：-15分
     hasEducation: { add: 5, deduct: 5 },   // 有至少1条教育经历：有+5分，无-5分
-    qualityBonus: { add: 5, deduct: 3 },   //描述描述质量：超过20字+5分，不足-3分
     perCompleteEdu: { add: 5, deduct: 5 }, // 每条完整教育经历：完整+5分，不完整-5分
+    qualityBonus: { add: 5, deduct: 3 },   // 描述质量：超过20字+5分，不足-3分
     maxEducations: 2,                      // 最多计算2条教育经历
   },
   
@@ -92,28 +92,28 @@ const analyzeResume = (resume: ResumeData): DiagnosisResult => {
     score += SCORING_RULES.BASIC_INFO.name.add;
   } else {
     score -= SCORING_RULES.BASIC_INFO.name.deduct;
-    basicIssues.push("缺少姓名");
+    basicIssues.push("缺少姓名（-3分）");
   }
   
   if (resume.basic.email && resume.basic.email.trim() !== "") {
     score += SCORING_RULES.BASIC_INFO.email.add;
   } else {
     score -= SCORING_RULES.BASIC_INFO.email.deduct;
-    basicIssues.push("缺少邮箱");
+    basicIssues.push("缺少邮箱（-2分）");
   }
   
   if (resume.basic.phone && resume.basic.phone.trim() !== "") {
     score += SCORING_RULES.BASIC_INFO.phone.add;
   } else {
     score -= SCORING_RULES.BASIC_INFO.phone.deduct;
-    basicIssues.push("缺少电话");
+    basicIssues.push("缺少电话（-3分）");
   }
   
   if (resume.basic.title && resume.basic.title.trim() !== "") {
     score += SCORING_RULES.BASIC_INFO.title.add;
   } else {
     score -= SCORING_RULES.BASIC_INFO.title.deduct;
-    basicIssues.push("缺少职位/标题");
+    basicIssues.push("缺少职位/标题（-5分）");
   }
   
   if (basicIssues.length > 0) {
@@ -153,7 +153,7 @@ const analyzeResume = (resume: ResumeData): DiagnosisResult => {
           if (isInScoringRange) {
             score -= SCORING_RULES.EXPERIENCE.qualityBonus.deduct;
           }
-          experienceIssues.push(`第${index + 1}条经历描述过于简短${isInScoringRange ? '（' : rangeNote}，建议至少20字）`);
+          experienceIssues.push(`第${index + 1}条经历描述过于简短${isInScoringRange ? '（-3分' : rangeNote}，建议至少20字）`);
         }
       } else {
         // 不完整经历减分（仅前N条）
@@ -175,7 +175,7 @@ const analyzeResume = (resume: ResumeData): DiagnosisResult => {
   } else {
     // 大模块缺失减分
     score -= SCORING_RULES.EXPERIENCE.moduleDeduct;
-    experienceIssues.push("缺少工作/实习经历");
+    experienceIssues.push("缺少工作/实习经历（-15分）");
   }
   
   if (experienceIssues.length > 0) {
@@ -196,6 +196,7 @@ const analyzeResume = (resume: ResumeData): DiagnosisResult => {
     resume.education.forEach((edu, index) => {
       const hasSchool = edu.school && edu.school.trim() !== "";
       const hasMajor = edu.major && edu.major.trim() !== "";
+      const hasDescription = edu.description && edu.description.trim() !== "";
       const isInScoringRange = index < SCORING_RULES.EDUCATION.maxEducations;
       const rangeNote = isInScoringRange ? "" : "（不在评分范围）";
       
@@ -203,6 +204,20 @@ const analyzeResume = (resume: ResumeData): DiagnosisResult => {
         // 完整教育经历加分（仅前N条）
         if (isInScoringRange) {
           score += SCORING_RULES.EDUCATION.perCompleteEdu.add;
+        }
+        
+        // 描述质量检查（超过20字）
+        if (hasDescription && edu.description) {
+          if (edu.description.trim().length >= 20) {
+            if (isInScoringRange) {
+              score += SCORING_RULES.EDUCATION.qualityBonus.add;
+            }
+          } else {
+            if (isInScoringRange) {
+              score -= SCORING_RULES.EDUCATION.qualityBonus.deduct;
+            }
+            educationIssues.push(`第${index + 1}条教育经历描述过于简短${isInScoringRange ? '（-3分' : rangeNote}，建议至少20字）`);
+          }
         }
       } else {
         // 不完整教育经历减分（仅前N条）
@@ -221,7 +236,7 @@ const analyzeResume = (resume: ResumeData): DiagnosisResult => {
   } else {
     // 大模块缺失减分
     score -= SCORING_RULES.EDUCATION.moduleDeduct;
-    educationIssues.push("缺少教育经历");
+    educationIssues.push("缺少教育经历（-15分）");
   }
   
   if (educationIssues.length > 0) {
@@ -260,7 +275,7 @@ const analyzeResume = (resume: ResumeData): DiagnosisResult => {
           if (isInScoringRange) {
             score -= SCORING_RULES.PROJECTS.qualityBonus.deduct;
           }
-          projectIssues.push(`第${index + 1}个项目描述过于简短${isInScoringRange ? '（' : rangeNote}，建议至少20字）`);
+          projectIssues.push(`第${index + 1}个项目描述过于简短${isInScoringRange ? '（-3分' : rangeNote}，建议至少20字）`);
         }
       } else {
         // 不完整项目减分（仅前N个）
@@ -279,7 +294,7 @@ const analyzeResume = (resume: ResumeData): DiagnosisResult => {
   } else {
     // 大模块缺失减分
     score -= SCORING_RULES.PROJECTS.moduleDeduct;
-    projectIssues.push("缺少项目经验");
+    projectIssues.push("缺少项目经验（-15分）");
   }
   
   if (projectIssues.length > 0) {
@@ -300,12 +315,12 @@ const analyzeResume = (resume: ResumeData): DiagnosisResult => {
       score += SCORING_RULES.SKILLS.qualityBonus.add;
     } else {
       score -= SCORING_RULES.SKILLS.qualityBonus.deduct;
-      skillIssues.push("专业技能描述过于简短（建议至少15字）");
+      skillIssues.push("专业技能描述过于简短（-2分，建议至少15字）");
     }
   } else {
     // 大模块缺失减分
     score -= SCORING_RULES.SKILLS.moduleDeduct;
-    skillIssues.push("缺少专业技能");
+    skillIssues.push("缺少专业技能（-15分）");
   }
   
   if (skillIssues.length > 0) {
@@ -353,7 +368,7 @@ const analyzeResume = (resume: ResumeData): DiagnosisResult => {
               if (isInScoringRange) {
                 score -= SCORING_RULES.CUSTOM_MODULE.qualityBonus.deduct;
               }
-              customModuleIssues.push(`${key}模块第${index + 1}项描述过于简短${isInScoringRange ? '（' : rangeNote}，建议至少20字）`);
+              customModuleIssues.push(`${key}模块第${index + 1}项描述过于简短${isInScoringRange ? '（-3分' : rangeNote}，建议至少20字）`);
             }
           } else {
             // 不完整的自定义模块减分（仅前N个）
@@ -376,7 +391,7 @@ const analyzeResume = (resume: ResumeData): DiagnosisResult => {
   // 如果没有任何有效的自定义模块，减去大模块分数
   if (!hasValidCustomModule && customDataKeys.length === 0) {
     score -= SCORING_RULES.CUSTOM_MODULE.moduleDeduct;
-    customModuleIssues.push("缺少自定义模块");
+    customModuleIssues.push("缺少自定义模块（-10分）");
   }
   
   if (customModuleIssues.length > 0) {
@@ -529,23 +544,9 @@ const ResumeDiagnosisPanel: React.FC = () => {
     
     // 计算诊断结果
     const result = analyzeResume(activeResume);
-    console.log('简历诊断分数更新:', result.score, '问题数:', result.totalIssues);
+    console.log('简历诊断分数更新:', result.score, '问题数:', result.totalIssues, '简历数据:', activeResume);
     setDiagnosis(result);
-  }, [
-    // 监听所有可能影响分数的字段
-    activeResume?.basic?.name,
-    activeResume?.basic?.email,
-    activeResume?.basic?.phone,
-    activeResume?.basic?.title,
-    activeResume?.basic?.photo,
-    activeResume?.skillContent,
-    // 使用 JSON.stringify 来检测数组/对象的深层变化
-    JSON.stringify(activeResume?.basic?.customFields),
-    JSON.stringify(activeResume?.experience),
-    JSON.stringify(activeResume?.education),
-    JSON.stringify(activeResume?.projects),
-    JSON.stringify(activeResume?.customData),
-  ]);
+  }, [activeResume]);
 
   if (!activeResume || !diagnosis) return null;
 
@@ -621,6 +622,4 @@ const ResumeDiagnosisPanel: React.FC = () => {
 };
 
 export default ResumeDiagnosisPanel;
-
-
 
