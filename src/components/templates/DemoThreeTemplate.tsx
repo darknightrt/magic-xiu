@@ -15,7 +15,6 @@ import {
  * - 深蓝色模块标签
  * - 紧凑有序的信息排版
  */
-import { useResumeStore } from "@/store/useResumeStore";
 import { ResumeTemplate } from "@/types/template";
 import ExperienceSection from "@/components/preview/ExperienceSection";
 import EducationSection from "@/components/preview/EducationSection";
@@ -33,7 +32,6 @@ const DemoThreeTemplate: React.FC<DemoThreeTemplateProps> = ({
   data,
   template,
 }) => {
-  const { setActiveSection } = useResumeStore();
   const accentColor =
     data.globalSettings?.themeColor || template.colorScheme.primary;
   const secondaryColor = template.colorScheme.secondary;
@@ -231,11 +229,10 @@ const DemoThreeTemplate: React.FC<DemoThreeTemplateProps> = ({
           }}
         />
         <div
-          className="flex flex-col gap-6 px-10 py-8 text-white lg:flex-row lg:items-center cursor-pointer hover:opacity-95 transition-opacity"
+          className="flex flex-col gap-6 px-10 py-8 text-white lg:flex-row lg:items-center"
           style={{
             background: `linear-gradient(120deg, ${accentColor}, ${secondaryColor})`,
           }}
-          onClick={() => setActiveSection("basic")}
         >
           <div className="flex-1 space-y-4">
             {data.basic.employementStatus && (
